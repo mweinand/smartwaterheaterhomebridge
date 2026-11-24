@@ -1,0 +1,15 @@
+energysmartwaterheater.com {
+  tls internal
+  
+  respond <<HTML
+		<html>
+		  <head><title>Foo</title></head>
+		  <body>Foo</body>
+		</html>
+		HTML 200
+}
+
+:80 {
+  respond "HTTP"
+}
+
