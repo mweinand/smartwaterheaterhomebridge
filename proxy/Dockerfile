@@ -1,6 +1,6 @@
-FROM nginx:1.24.0
+FROM nginx:1.24.0-alpine
 
-RUN apt-get update && apt-get install -y openssl
+RUN apk add --no-cache openssl
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
