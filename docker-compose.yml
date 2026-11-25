@@ -1,5 +1,5 @@
 services:
-  caddy:
+  proxy:
     image: caddy:2-alpine
     restart: unless-stopped
     ports:
@@ -7,10 +7,19 @@ services:
       - "443:443"
       - "443:443/udp"
     volumes:
-      - ./conf:/etc/caddy
+      - ./proxy/conf:/etc/caddy
       - ./site:/srv
       - caddy_data:/data
       - caddy_config:/config
+
+  waterheaterserver:
+    image: waterheaterserver:latest
+    build:
+      context: ./waterheaterserver
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
 
 volumes:
   caddy_data:
