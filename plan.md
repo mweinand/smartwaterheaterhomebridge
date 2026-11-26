@@ -1,10 +1,7 @@
-- Change the server handler so it only parses water heater updates for the specific routes
-- Move route handler logic to it's own file
-- Clean up the ID handling getOrCreate logic - make ID private readonly
-- Make the request logger more of a generic logger
 - Support csv logging to a device and date specific file for updates
 - Support limit of number of dates of CSV files to keep before auto deletion
 - CSV logs need to go to a persistent volume
+- validate deviceId is a safe string for folder
 - Make an API that lists the found water heaters
 - Make an API that shows all the details of a specific water heater
 - Make an API that allows queuing a command for the changing the setpoint or the mode

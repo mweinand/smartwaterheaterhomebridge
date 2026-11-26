@@ -15,10 +15,9 @@ export class WaterHeaterStore {
         }
 
         if (deviceId in this.WATER_HEATERS && this.WATER_HEATERS[deviceId]) {
-            await this.WATER_HEATERS[deviceId].handleUpdateRequest(queryParams);
             return this.WATER_HEATERS[deviceId]
         } else {
-            const waterHeater = new WaterHeater();
+            const waterHeater = new WaterHeater(deviceId);
             await waterHeater.bootstrap(queryParams);
             this.WATER_HEATERS[deviceId] = waterHeater;
 

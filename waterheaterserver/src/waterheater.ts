@@ -11,7 +11,8 @@ export class WaterHeater {
     pendingCommands = {};
     sensors = {};
 
-    deviceId: string | undefined;
+    readonly deviceId: string;
+
     moduleAPI?: string;
     moduleFirmwareVersion?: string; 
     masterFirmwareVersion?: string; 
@@ -46,11 +47,13 @@ export class WaterHeater {
     addressData?: string;
     signalStrength?: string;
 
-    constructor () {
+    constructor (deviceId: string) {
+        this.deviceId = deviceId;
     }
 
     async bootstrap (queryParams: Record<string, string>) {
-        await this.handleUpdateRequest(queryParams);
+        LOGGER.trace({message: "Bootstrapping water heater", deviceId: this.deviceId});
+        // await this.handleUpdateRequest(queryParams);
         // await this.createHomeAssistantConfig();
         // await this.listenForCommands();
     }
@@ -68,12 +71,6 @@ export class WaterHeater {
 
     async handleUpdateRequest (queryParams: Record<string, string>) {
         const keys = Object.keys(queryParams);
-
-        // Do device id first since we need it to create all the other sensors
-        if (keys.includes('DeviceText')) {
-            LOGGER.trace({message: 'Setting device id', deviceId: queryParams['DeviceText']});
-            this.deviceId = queryParams['DeviceText'];
-        }
 
         const unit = ('Units' in queryParams ? `°${queryParams['Units']}` : '°F');
         LOGGER.trace({message: 'Got Unit', unit});
