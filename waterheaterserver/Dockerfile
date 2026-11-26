@@ -25,6 +25,7 @@ RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
 
 # Copy compiled output from build stage
 COPY --from=build --chown=node:node /app/dist ./dist
+RUN mkdir -p /app/logs && chown node:node /app/logs
 
 # Run as non-root user
 USER node

@@ -18,3 +18,7 @@ services:
     restart: unless-stopped
     ports:
       - "8001:8001"
+    environment:
+      CSV_LOG_RETENTION: ${CSV_LOG_RETENTION:-90}
+    volumes:
+      - ./waterheaterserver/logs:/app/logs

@@ -30,7 +30,7 @@ export class WaterHeater {
     condensePumpFail?: string;
     availableModes?: string[];
     systemInHeating?: string;
-    hotWaterVolume?: number;
+    hotWaterVolume?: string;
     leak?: string;
     dryFire?: string;
     elementFail?: string;
@@ -70,71 +70,93 @@ export class WaterHeater {
     // }
 
     async handleUpdateRequest (queryParams: Record<string, string>) {
-        const keys = Object.keys(queryParams);
+        const state = this.toStorage();
+        const numericValue = (key: string, value: string): number | undefined => {
+            if (value === '') return undefined;
+            const number = Number(value);
+            if (!Number.isFinite(number)) throw new Error(`Invalid numeric value for ${key}`);
+            return number;
+        };
 
-        const unit = ('Units' in queryParams ? `°${queryParams['Units']}` : '°F');
-        LOGGER.trace({message: 'Got Unit', unit});
-
-        for (const key of keys) {
-            LOGGER.trace({message: "Converting key", key});
-
-            if (key in MAPPING) {
-                switch (key) {
-                    case 'AvailableModes':
-                        this['availableModes'] = queryParams[key]?.split(',') ?? [];
-                        break;
-                    case 'SetPoint':
-                        this['setPoint'] = queryParams[key] ? parseInt(queryParams[key]) : undefined;
-                        break;
-                    case 'Mode':
-                        this['mode'] = queryParams[key];
-                        break;
-                    case 'Grid':
-                    case 'SystemInHeating':
-                    case 'Leak':
-                    case 'LeakDetect':
-                    case 'DryFire':
-                    case 'ElementFail':
-                    case 'TankSensorFail':
-                    case 'EcoError':
-                    case 'MasterDispFail':
-                    case 'CompSensorFail':
-                    case 'SysSensorFail':
-                    case 'SystemFail':
-                    case 'CondensePumpFail':
-                        // await this.createUpdateSensor(queryParams, key, BinarySensor, {isDiagnostic: false});
-                        break;
-                    case 'AirFilterStatus':
-                        // await this.createUpdateSensor(queryParams, key, BinarySensor, {isDiagnostic: false, inverse: true});
-                        break;
-                    case 'FaultCodes':
-                    case 'HotWaterVol':
-                        // await this.createUpdateSensor(queryParams, key, Sensor, {isDiagnostic: false});
-                        break;
-                    case 'LowerTemp':
-                    case 'UpperTemp':
-                    case 'MaxSetPoint':
-                        //await this.createUpdateSensor(queryParams, key, Sensor, {isDiagnostic: false, unit});
-                        break;
-                    case 'ModuleApi':
-                    case 'ModFwVer':
-                    case 'MasterFwVer':
-                    case 'MasterModelId':
-                    case 'DisplayFwVer':
-                    case 'WifiFwVer':
-                    case 'UnConnectNumber':
-                    case 'AddrData':
-                    case 'SignalStrength':
-                        //await this.createUpdateSensor(queryParams, key, Sensor, {isDiagnostic: true});
-                        break;
-                    case 'UpdateRate':
-                        //await this.createUpdateSensor(queryParams, key, NumberSensor, {isDiagnostic: true, max: 600, min: 30});
-                        break;
-                    default:
-                        //convertedParams[MAPPING[key]] = queryParams[key];
-                }
+        for (const [key, value] of Object.entries(queryParams)) {
+            if (!Object.hasOwn(MAPPING, key) || key === 'Password' || key === 'DeviceText') continue;
+            if (typeof value !== 'string') throw new Error(`Invalid value for ${key}`);
+            switch (key) {
+                case 'ModuleApi': state.moduleAPI = value; break;
+                case 'ModFwVer': state.moduleFirmwareVersion = value; break;
+                case 'MasterFwVer': state.masterFirmwareVersion = value; break;
+                case 'MasterModelId': state.masterModelId = value; break;
+                case 'DisplayFwVer': state.displayFirmwareVersion = value; break;
+                case 'WifiFwVer': state.wifiFirmwareVersion = value; break;
+                case 'UpdateRate': state.updateRate = numericValue(key, value); break;
+                case 'Mode': state.mode = value; break;
+                case 'SetPoint': state.setPoint = numericValue(key, value); break;
+                case 'Units': state.units = value; break;
+                case 'LeakDetect': state.leakDetected = value; break;
+                case 'MaxSetPoint': state.maxSetPoint = numericValue(key, value); break;
+                case 'Grid': state.grid = value; break;
+                case 'AirFilterStatus': state.airFilterStatus = value; break;
+                case 'CondensePumpFail': state.condensePumpFail = value; break;
+                case 'AvailableModes': state.availableModes = value.split(','); break;
+                case 'SystemInHeating': state.systemInHeating = value; break;
+                case 'HotWaterVol': state.hotWaterVolume = value; break;
+                case 'Leak': state.leak = value; break;
+                case 'DryFire': state.dryFire = value; break;
+                case 'ElementFail': state.elementFail = value; break;
+                case 'TankSensorFail': state.tankSensorFail = value; break;
+                case 'EcoError': state.ecoError = value; break;
+                case 'MasterDispFail': state.masterDisplayFail = value; break;
+                case 'SysSensorFail': state.systemSensorFail = value; break;
+                case 'CompSensorFail': state.compSensorFail = value; break;
+                case 'SystemFail': state.systemFail = value; break;
+                case 'UpperTemp': state.upperTemperature = numericValue(key, value); break;
+                case 'LowerTemp': state.lowerTemperature = numericValue(key, value); break;
+                case 'FaultCodes': state.faultCodes = value; break;
+                case 'UnConnectNumber': state.unConnectNumber = value; break;
+                case 'AddrData': state.addressData = value; break;
+                case 'SignalStrength': state.signalStrength = value; break;
             }
         }
+        Object.assign(this, state);
+    }
+
+    toStorage () {
+        return {
+            deviceId: this.deviceId,
+            moduleAPI: this.moduleAPI,
+            moduleFirmwareVersion: this.moduleFirmwareVersion,
+            masterFirmwareVersion: this.masterFirmwareVersion,
+            masterModelId: this.masterModelId,
+            displayFirmwareVersion: this.displayFirmwareVersion,
+            wifiFirmwareVersion: this.wifiFirmwareVersion,
+            updateRate: this.updateRate,
+            mode: this.mode,
+            setPoint: this.setPoint,
+            units: this.units,
+            leakDetected: this.leakDetected,
+            maxSetPoint: this.maxSetPoint,
+            grid: this.grid,
+            airFilterStatus: this.airFilterStatus,
+            condensePumpFail: this.condensePumpFail,
+            availableModes: this.availableModes?.slice(),
+            systemInHeating: this.systemInHeating,
+            hotWaterVolume: this.hotWaterVolume,
+            leak: this.leak,
+            dryFire: this.dryFire,
+            elementFail: this.elementFail,
+            tankSensorFail: this.tankSensorFail,
+            ecoError: this.ecoError,
+            masterDisplayFail: this.masterDisplayFail,
+            systemSensorFail: this.systemSensorFail,
+            compSensorFail: this.compSensorFail,
+            systemFail: this.systemFail,
+            upperTemperature: this.upperTemperature,
+            lowerTemperature: this.lowerTemperature,
+            faultCodes: this.faultCodes,
+            unConnectNumber: this.unConnectNumber,
+            addressData: this.addressData,
+            signalStrength: this.signalStrength,
+        };
     }
 
 

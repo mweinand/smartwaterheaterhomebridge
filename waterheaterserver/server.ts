@@ -2,11 +2,13 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { LOGGER } from './src/logger.js';
 import { WaterHeaterStore } from './src/water-heater-store.js';
+import { CsvWriter } from './src/csv-writer.js';
 import { IngestRouter } from './src/routes/ingest.js';
 
 LOGGER.debug({message: 'Loaded Server'});
 
 const waterHeaterStore: WaterHeaterStore = new WaterHeaterStore();
+const csvWriter = new CsvWriter();
 
 const app = express();
 app.disable('x-powered-by');
@@ -28,7 +30,7 @@ app.use(async (req, res, next) => {
     return next();
 })
 
-app.use('/~branecky', IngestRouter(waterHeaterStore));
+app.use('/~branecky', IngestRouter(waterHeaterStore, csvWriter));
 
 app.listen(8001);
 
