@@ -19,6 +19,19 @@ curl -k -X POST https://energysmartwaterheater.com/ \
 The server currently responds with `{"Success":"0"}`. This sample creates or
 updates an in-memory device; it does not control a water heater.
 
+## Quirks
+
+### TLS
+
+The proxy allows the legacy water-heater client to connect using TLS 1.0.
+`proxy/nginx.conf` explicitly enables TLS 1.0 (and also lists SSLv3, TLS 1.1,
+and TLS 1.2), and sets the cipher security level to 0 with
+`@SECLEVEL=0`. This relaxes OpenSSL's security checks for older clients and
+cryptographic algorithms. The proxy's self-signed certificate is also
+generated with SHA-1 in `proxy/Dockerfile`.
+
+These settings weaken TLS security and this proxy should not be exposed to the outside internet.
+
 ## Acknowledgements
 
 Heavily based on:

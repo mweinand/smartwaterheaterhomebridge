@@ -1,0 +1,17 @@
+- Change the server handler so it only parses water heater updates for the specific routes
+- Move route handler logic to it's own file
+- Clean up the ID handling getOrCreate logic - make ID private readonly
+- Make the request logger more of a generic logger
+- Support csv logging to a device and date specific file for updates
+- Support limit of number of dates of CSV files to keep before auto deletion
+- CSV logs need to go to a persistent volume
+- Make an API that lists the found water heaters
+- Make an API that shows all the details of a specific water heater
+- Make an API that allows queuing a command for the changing the setpoint or the mode
+- Only support the most recent command for a specific type
+- Respond to update requests with any pending commands, and clear the queue
+- Countdown/timing of updates based on update rate
+- Make a web UI that supports managing the water heater
+- Setup a weekly schedule for a water heater - persistent storage
+- auto command / response based on schedule
+- setup thermostate matter homebridge plugin that interacts with API
