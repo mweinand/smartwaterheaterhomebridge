@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true })); // support encoded bodies
 
 // log all requests
 app.use(async (req, res, next) => {
-    LOGGER.debug({message: "Got Request", body: req.body, path: req.path});
+    LOGGER.debug({message: "Got Request", body: req.body, path: req.path, method: req.method});
 
     // ignore empty payloads
     if (Object.keys(req.body || {}).length === 0) {
