@@ -50,7 +50,7 @@ export class WaterHeater {
     }
 
     async bootstrap (queryParams: Record<string, string>) {
-        await this.convertQueryParams(queryParams);
+        await this.handleUpdateRequest(queryParams);
         // await this.createHomeAssistantConfig();
         // await this.listenForCommands();
     }
@@ -66,7 +66,7 @@ export class WaterHeater {
     //     }
     // }
 
-    async convertQueryParams (queryParams: Record<string, string>) {
+    async handleUpdateRequest (queryParams: Record<string, string>) {
         const keys = Object.keys(queryParams);
 
         // Do device id first since we need it to create all the other sensors

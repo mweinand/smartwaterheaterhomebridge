@@ -1,46 +1,34 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { LOGGER } from './src/logger.js';
-import { WaterHeater } from './src/waterheater.js';
+import { WaterHeaterStore } from './src/water-heater-store.js';
+import { IngestRouter } from './src/routes/ingest.js';
 
 LOGGER.debug({message: 'Loaded Server'});
 
-const WATER_HEATERS: Record<string, WaterHeater> = {};
+const waterHeaterStore: WaterHeaterStore = new WaterHeaterStore();
 
 const app = express();
 app.disable('x-powered-by');
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(express.urlencoded({ extended: true })); // support encoded bodies
 
-const getCreateWaterHeater = async (queryParams: Record<string, string>): Promise<WaterHeater> => {
-    const deviceId = queryParams.DeviceText;
+// log all requests
+app.use(async (req, res, next) => {
+    LOGGER.debug({message: "Got Request", body: req.body, path: req.path});
 
-    if (!deviceId) {
-        throw new Error('DeviceText is required in queryParams');
-    }
-
-    if (deviceId in WATER_HEATERS && WATER_HEATERS[deviceId]) {
-        await WATER_HEATERS[deviceId].convertQueryParams(queryParams);
-        return WATER_HEATERS[deviceId]
-    } else {
-        const waterHeater = new WaterHeater();
-        await waterHeater.bootstrap(queryParams);
-        WATER_HEATERS[deviceId] = waterHeater;
-
-       return waterHeater;
-    }
-}
-
-app.use(async (req, res) => {
     // ignore empty payloads
     if (Object.keys(req.body || {}).length === 0) {
+        // short circuit
+        LOGGER.warn({message: "Empty payload received"});
+        res.status(200).send({ success: false, error: "Empty payload" });
         return;
     }
 
-    LOGGER.debug({message: "Got Request", body: req.body, path: req.path});
-    const waterHeater = await getCreateWaterHeater(req.body);
-    res.status(200).end(JSON.stringify(waterHeater.toResponse()));
+    return next();
 })
+
+app.use('/~branecky', IngestRouter(waterHeaterStore));
 
 app.listen(8001);
 
