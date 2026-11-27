@@ -5,6 +5,7 @@ import { WaterHeaterStore } from './src/water-heater-store.js';
 import { CsvWriter } from './src/csv-writer.js';
 import { IngestRouter } from './src/routes/ingest.js';
 import { WaterHeatersRouter } from './src/routes/water-heaters.js';
+import { AdminRouter } from './src/routes/admin.js';
 
 LOGGER.debug({message: 'Loaded Server'});
 
@@ -24,6 +25,7 @@ app.use(async (req, res, next) => {
 
 app.use('/~branecky', IngestRouter(waterHeaterStore, csvWriter));
 app.use('/water-heaters', WaterHeatersRouter(waterHeaterStore));
+app.use('/admin', AdminRouter());
 
 app.listen(8001);
 

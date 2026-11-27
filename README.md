@@ -6,6 +6,33 @@ server is available on port 8001.
 View proxy access logs with `docker compose logs proxy`. The proxy logs TCP
 connections, not individual HTTP requests.
 
+## Admin UI
+
+Open [http://localhost:8001/admin](http://localhost:8001/admin) to view the
+water heaters seen by the server since it started. The table refreshes 20
+seconds after each request finishes and retains the last successful data with a
+warning if a refresh fails. This in-memory list does not establish whether a device is currently
+connected, and is cleared when the server restarts. The list API does not
+provide temperature units.
+
+The admin UI and API do not require authentication. Do not expose port 8001
+to untrusted networks.
+
+For local development, use Node 26 (see `waterheaterserver/.nvmrc`) and run:
+
+```sh
+npm ci --prefix waterheaterserver
+npm ci --prefix waterheaterserver/admin
+npm --prefix waterheaterserver start
+# In a second terminal:
+npm --prefix waterheaterserver/admin run dev
+```
+
+Open the `/admin/` URL printed by Vite. Its development server proxies API
+requests to the server on port 8001. To serve the production UI directly from
+Express outside Docker, run `npm --prefix waterheaterserver run build:admin`
+first. Docker Compose builds the frontend as part of the server image.
+
 ## Testing
 
 Send a sample device update to the server:
@@ -20,6 +47,8 @@ The server currently responds with `{"Success":"0"}`. This sample creates or
 updates an in-memory device; it does not control a water heater.
 
 Run the automated server tests with `npm --prefix waterheaterserver test`.
+Run frontend tests with `npm --prefix waterheaterserver/admin test` and the
+admin/server integration test with `npm --prefix waterheaterserver run test:admin`.
 
 ## State logs
 

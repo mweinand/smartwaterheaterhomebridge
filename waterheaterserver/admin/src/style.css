@@ -1,0 +1,15 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #1c2833;
+  background: #f5f7f9;
+}
+
+body { margin: 0; }
+main { max-width: 70rem; margin: 0 auto; padding: 2rem 1rem; }
+h1 { margin-bottom: 0.4rem; }
+header p { color: #516170; }
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: white; }
+th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid #dce3e8; }
+th { background: #eaf0f4; }
+.error { padding: 0.8rem; color: #7a1a1a; background: #fff0ef; border: 1px solid #e8b3b0; }

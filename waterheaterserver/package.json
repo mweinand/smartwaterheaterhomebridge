@@ -8,9 +8,11 @@
   "main": "server.js",
   "scripts": {
     "build": "tsc",
+    "build:admin": "npm --prefix admin run build",
     "start": "node dist/server.js",
-    "prestart": "npm run build",
-    "test": "npm run build && node --test test/*.test.js"
+    "prestart": "npm run build && npm run build:admin",
+    "test": "npm run build && node --test test/*.test.js",
+    "test:admin": "npm run build && npm run build:admin && node --test admin/test/*.test.js"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
