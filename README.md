@@ -11,9 +11,12 @@ connections, not individual HTTP requests.
 Open [http://localhost:8001/admin](http://localhost:8001/admin) to view the
 water heaters seen by the server since it started. The table refreshes 20
 seconds after each request finishes and retains the last successful data with a
-warning if a refresh fails. This in-memory list does not establish whether a device is currently
-connected, and is cleared when the server restarts. The list API does not
-provide temperature units.
+warning if a refresh fails. Select a device ID to view its stored details; the
+details page refreshes on the same schedule and shows `Unknown` for fields the
+device has not reported. Both pages are read-only. Their in-memory data does
+not establish whether a device is currently connected and is cleared when the
+server restarts. The list API does not provide temperature units; the detail
+page shows them only when reported by the device.
 
 The admin UI and API do not require authentication. Do not expose port 8001
 to untrusted networks.

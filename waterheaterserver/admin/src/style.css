@@ -13,3 +13,8 @@ table { width: 100%; border-collapse: collapse; background: white; }
 th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid #dce3e8; }
 th { background: #eaf0f4; }
 .error { padding: 0.8rem; color: #7a1a1a; background: #fff0ef; border: 1px solid #e8b3b0; }
+.details { background: white; }
+.details div { display: grid; grid-template-columns: minmax(12rem, 1fr) 2fr; gap: 1rem; padding: 0.85rem 1rem; border-bottom: 1px solid #dce3e8; }
+.details dt { font-weight: 600; }
+.details dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 35rem) { .details div { grid-template-columns: 1fr; gap: 0.25rem; } }

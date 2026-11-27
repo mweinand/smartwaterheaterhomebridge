@@ -15,5 +15,8 @@ export const AdminRouter = () => {
         next();
     });
     router.use(express.static(adminDirectory));
+    router.get('/water-heaters/:deviceId', (_req, res) => {
+        res.sendFile('index.html', { root: adminDirectory });
+    });
     return router;
 };

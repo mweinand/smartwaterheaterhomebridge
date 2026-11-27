@@ -34,6 +34,10 @@ test('serves admin assets without interfering with the API or ingest', async t =
   assert.ok(asset);
   assert.equal((await fetch(base + asset)).status, 200);
   assert.equal((await fetch(`${base}/admin/assets/missing.js`)).status, 404);
+  const detailPage = await fetch(`${base}/admin/water-heaters/test-device?reload=1`);
+  assert.equal(detailPage.status, 200);
+  assert.equal(await detailPage.text(), html);
+  assert.equal((await fetch(`${base}/admin/other`)).status, 404);
   assert.deepEqual(await (await fetch(`${base}/water-heaters`)).json(), []);
   const ingest = await fetch(`${base}/~branecky/postAll.php`, {
     method: 'POST',
@@ -46,4 +50,10 @@ test('serves admin assets without interfering with the API or ingest', async t =
   assert.equal(heaters[0].deviceId, 'test-device');
   assert.equal(heaters[0].status, 'Hybrid');
   assert.equal(heaters[0].setPoint, 120);
+  const details = await (await fetch(`${base}/water-heaters/test-device`)).json();
+  assert.equal(details.success, true);
+  assert.equal(details.data.deviceId, 'test-device');
+  assert.equal(details.data.mode, 'Hybrid');
+  assert.equal(details.data.setPoint, 120);
+  assert.equal((await fetch(`${base}/water-heaters/missing`)).status, 404);
 });
