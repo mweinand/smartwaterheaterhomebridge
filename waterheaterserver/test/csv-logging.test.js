@@ -62,8 +62,10 @@ test('captures all recognized state, retains omitted values, and excludes creden
         UnConnectNumber: '10', AddrData: '05FD|00D9', SignalStrength: '-59',
         Unknown: 'not logged',
     });
+    heater.lastUpdated = new Date('2026-01-01T12:00:00Z');
     const first = heater.toStorage();
     assert.deepEqual(first, {
+        lastUpdated: new Date('2026-01-01T12:00:00Z'),
         deviceId: 'device-1', moduleAPI: '1.5', moduleFirmwareVersion: '3.1',
         masterFirmwareVersion: '02.06', masterModelId: 'B2.00', displayFirmwareVersion: '00.00',
         wifiFirmwareVersion: 'C2', updateRate: 300, mode: 'Hybrid', setPoint: 123, units: 'F',
@@ -90,11 +92,13 @@ test('writes escaped snapshots with one header and rotates at UTC midnight', asy
     await heater.handleUpdateRequest({
         Mode: 'line 1,\n"line 2"', AvailableModes: 'Hybrid,Electric', Password: 'test-secret',
     });
-    const state = heater.toStorage();
-    await writer.withDeviceLock(state.deviceId, async () => {
-        await writer.writeWaterHeaterState(state, new Date('2026-01-02T00:30:00+01:00'));
-        await writer.writeWaterHeaterState(state, new Date('2026-01-01T23:59:59Z'));
-        await writer.writeWaterHeaterState(state, new Date('2026-01-02T00:00:00Z'));
+    await writer.withDeviceLock(heater.deviceId, async () => {
+        heater.lastUpdated = new Date('2026-01-02T00:30:00+01:00');
+        await writer.writeWaterHeaterState(heater.toStorage());
+        heater.lastUpdated = new Date('2026-01-01T23:59:59Z');
+        await writer.writeWaterHeaterState(heater.toStorage());
+        heater.lastUpdated = new Date('2026-01-02T00:00:00Z');
+        await writer.writeWaterHeaterState(heater.toStorage());
     });
     const first = await records(join(root, 'device_1', 'device_1-20260101.csv'));
     const next = await records(join(root, 'device_1', 'device_1-20260102.csv'));
@@ -120,8 +124,9 @@ test('retains the newest matching files per device and validates the limit', asy
     await mkdir(join(root, 'device-2'));
     await writeFile(join(root, 'device-2', 'device-2-20200101.csv'), 'keep');
     for (const day of ['01', '02', '03']) {
+        state.lastUpdated = new Date(`2026-01-${day}T12:00:00Z`);
         await writer.withDeviceLock(state.deviceId, () =>
-            writer.writeWaterHeaterState(state, new Date(`2026-01-${day}T12:00:00Z`)));
+            writer.writeWaterHeaterState(state));
     }
     assert.deepEqual((await readdir(join(root, state.deviceId))).sort(),
         ['device-1-20260102.csv', 'device-1-20260103.csv', 'unrelated.csv']);
@@ -145,7 +150,8 @@ test('default retention keeps exactly 90 daily files', async t => {
     const filename = index => `default-device-${day(index).toISOString().slice(0, 10).replaceAll('-', '')}.csv`;
     await Promise.all(Array.from({ length: 90 }, (_, index) =>
         writeFile(join(directory, filename(index)), 'existing\n')));
-    await writer.withDeviceLock(heater.deviceId, () => writer.writeWaterHeaterState(heater.toStorage(), day(90)));
+    heater.lastUpdated = day(90);
+    await writer.withDeviceLock(heater.deviceId, () => writer.writeWaterHeaterState(heater.toStorage()));
     const files = await readdir(directory);
     assert.equal(files.length, 90);
     assert.equal(files.includes(filename(0)), false);
@@ -163,7 +169,8 @@ test('serializes concurrent device updates and rejects unsafe identifiers', asyn
         writer.withDeviceLock('__proto__', async () => {
             const heater = await store.getCreateWaterHeater({ DeviceText: '__proto__' });
             await heater.handleUpdateRequest({ Mode: `mode-${index}`, SetPoint: String(index) });
-            await writer.writeWaterHeaterState(heater.toStorage(), new Date('2026-01-01T12:00:00Z'));
+            heater.lastUpdated = new Date('2026-01-01T12:00:00Z');
+            await writer.writeWaterHeaterState(heater.toStorage());
         })));
     const rows = await records(join(root, '__proto__', '__proto__-20260101.csv'));
     assert.equal(rows.length, 30);
