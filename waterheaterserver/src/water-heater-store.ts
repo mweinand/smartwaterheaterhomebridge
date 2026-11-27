@@ -23,4 +23,13 @@ export class WaterHeaterStore {
         return waterHeater;
         }
     }
+
+    getWaterHeater = async (deviceId: string): Promise<WaterHeater | undefined> => {
+        validateDeviceId(deviceId);
+        return this.WATER_HEATERS[deviceId];
+    }
+
+    getAllWaterHeaters() {
+        return Object.values(this.WATER_HEATERS);
+    }
 }

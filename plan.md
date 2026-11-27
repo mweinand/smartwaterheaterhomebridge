@@ -1,9 +1,3 @@
-- Support csv logging to a device and date specific file for updates
-- Support limit of number of dates of CSV files to keep before auto deletion
-- CSV logs need to go to a persistent volume
-- validate deviceId is a safe string for folder
-- Make an API that lists the found water heaters
-- Make an API that shows all the details of a specific water heater
 - Make an API that allows queuing a command for the changing the setpoint or the mode
 - Only support the most recent command for a specific type
 - Respond to update requests with any pending commands, and clear the queue

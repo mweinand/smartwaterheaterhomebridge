@@ -42,17 +42,17 @@ export class CsvWriter {
         }
     }
 
-    async writeWaterHeaterState(state: WaterHeaterState, timestamp = new Date()): Promise<void> {
+    async writeWaterHeaterState(state: WaterHeaterState): Promise<void> {
         validateDeviceId(state.deviceId);
-        const date = timestamp.toISOString().slice(0, 10).replaceAll('-', '');
+        const date = state.lastUpdated.toISOString().slice(0, 10).replaceAll('-', '');
         const directory = join(this.logsDirectory, state.deviceId);
         const filename = `${state.deviceId}-${date}.csv`;
-        const csvValue = (value: string | number | string[] | undefined): string => {
+        const csvValue = (value: string | Date |number | string[] | undefined): string => {
             const text = Array.isArray(value) ? JSON.stringify(value) : String(value ?? '');
             return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
         };
         const header = ['timestamp', ...Object.keys(state)].map(csvValue).join(',');
-        const row = [timestamp.toISOString(), ...Object.values(state)].map(csvValue).join(',');
+        const row = [state.lastUpdated.toISOString(), ...Object.values(state)].map(csvValue).join(',');
 
         try {
             await mkdir(directory, { recursive: true });

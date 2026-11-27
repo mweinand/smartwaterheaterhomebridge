@@ -47,8 +47,11 @@ export class WaterHeater {
     addressData?: string;
     signalStrength?: string;
 
+    lastUpdated: Date;
+
     constructor (deviceId: string) {
         this.deviceId = deviceId;
+        this.lastUpdated = new Date();
     }
 
     async bootstrap (queryParams: Record<string, string>) {
@@ -118,10 +121,12 @@ export class WaterHeater {
             }
         }
         Object.assign(this, state);
+        this.lastUpdated = new Date();
     }
 
     toStorage () {
         return {
+            lastUpdated: this.lastUpdated,
             deviceId: this.deviceId,
             moduleAPI: this.moduleAPI,
             moduleFirmwareVersion: this.moduleFirmwareVersion,
@@ -178,7 +183,7 @@ export class WaterHeater {
     //     LOGGER.trace({message: "Updated Pending Commands", pendingCommands: this.pendingCommands});
     // }
 
-    toResponse () {
+    toIngestResponse () {
         const response = {
             Success: "0",
         }

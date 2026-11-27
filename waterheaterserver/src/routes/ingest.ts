@@ -14,7 +14,7 @@ const IngestRouter = (waterHeaterStore: WaterHeaterStore, csvWriter: CsvWriter) 
                 const waterHeater = await waterHeaterStore.getCreateWaterHeater(req.body);
                 await waterHeater.handleUpdateRequest(req.body);
                 await csvWriter.writeWaterHeaterState(waterHeater.toStorage());
-                return waterHeater.toResponse();
+                return waterHeater.toIngestResponse();
             });
             res.status(200).json(response);
         } catch (error) {

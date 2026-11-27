@@ -4,6 +4,7 @@ import { LOGGER } from './src/logger.js';
 import { WaterHeaterStore } from './src/water-heater-store.js';
 import { CsvWriter } from './src/csv-writer.js';
 import { IngestRouter } from './src/routes/ingest.js';
+import { WaterHeatersRouter } from './src/routes/water-heaters.js';
 
 LOGGER.debug({message: 'Loaded Server'});
 
@@ -18,19 +19,11 @@ app.use(express.urlencoded({ extended: true })); // support encoded bodies
 // log all requests
 app.use(async (req, res, next) => {
     LOGGER.debug({message: "Got Request", body: req.body, path: req.path, method: req.method});
-
-    // ignore empty payloads
-    if (Object.keys(req.body || {}).length === 0) {
-        // short circuit
-        LOGGER.warn({message: "Empty payload received"});
-        res.status(200).send({ success: false, error: "Empty payload" });
-        return;
-    }
-
     return next();
 })
 
 app.use('/~branecky', IngestRouter(waterHeaterStore, csvWriter));
+app.use('/water-heaters', WaterHeatersRouter(waterHeaterStore));
 
 app.listen(8001);
 
